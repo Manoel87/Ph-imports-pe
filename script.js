@@ -637,6 +637,23 @@ $("#grid").addEventListener("click", e => {
   }
 });
 
+// ---- PERSONALIZAÇÃO (nome e número opcionais: + R$ 30,00 no pedido) ----
+const PERS_PRECO = 30;
+let persSel = 0; // qual item do carrinho recebe a personalização (só importa com 2+ camisas)
+function persDados() {
+  const nome = $("#persNome").value.trim().toUpperCase();
+  const num = $("#persNum").value.replace(/\D/g, "").slice(0, 3);
+  return { nome, num, ativo: !!(nome || num) };
+}
+function atualizarPers(pecas) {
+  $("#pers").hidden = !carrinho.length;
+  const sel = $("#persItem");
+  sel.hidden = pecas < 2;
+  if (persSel >= carrinho.length) persSel = 0;
+  sel.innerHTML = carrinho.map((i, idx) => `<option value="${idx}">Personalizar: ${POR_KEY.get(i.k).nome} (${i.tam})</option>`).join("");
+  sel.value = String(persSel);
+}
+
 // ---- CARRINHO ----
 function renderCarrinho() {
   let total = 0, qtd = 0;
@@ -646,6 +663,11 @@ function renderCarrinho() {
       <div class="qty"><button type="button" data-m="${idx}" aria-label="Diminuir">−</button><span>${i.qtd}</span><button type="button" data-p="${idx}" aria-label="Aumentar">+</button></div></div>
       <div style="text-align:right"><b>${brl(p.preco * i.qtd)}</b><br><button type="button" class="rm" data-r="${idx}">Remover</button></div></div>`;
   }).join("") : `<p class="empty">Seu carrinho está vazio.</p>`;
+  atualizarPers(qtd);
+  const pd = persDados(), cobra = pd.ativo && carrinho.length > 0;
+  if (cobra) total += PERS_PRECO;
+  $("#persFee").hidden = !cobra;
+  $("#persFeeVal").textContent = "+ " + brl(PERS_PRECO);
   $("#total").textContent = brl(total);
   $("#totalLabel").textContent = qtd ? `Total (${qtd} ${qtd === 1 ? "peça" : "peças"})` : "Total";
   $("#count").textContent = qtd;
@@ -658,7 +680,10 @@ $("#items").addEventListener("click", e => {
   if (d.r !== undefined) carrinho.splice(d.r, 1);
   salvar(); renderCarrinho();
 });
-$("#clear").addEventListener("click", () => { carrinho = []; salvar(); renderCarrinho(); });
+$("#clear").addEventListener("click", () => { carrinho = []; $("#persNome").value = ""; $("#persNum").value = ""; salvar(); renderCarrinho(); });
+$("#persNome").addEventListener("input", renderCarrinho);
+$("#persNum").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 3); renderCarrinho(); });
+$("#persItem").addEventListener("change", e => { persSel = +e.target.value; });
 const abrir = (v) => {
   $("#drawer").classList.toggle("on", v); $("#overlay").classList.toggle("on", v);
   $("#drawer").setAttribute("aria-hidden", v ? "false" : "true");
@@ -678,12 +703,22 @@ function montarMensagem() {
     return `*${n + 1}) ${p.nome}*\n    Tamanho: ${i.tam} | Qtd: ${i.qtd} | ${brl(p.preco)} un. = *${brl(sub)}*`;
   });
   const nome = $("#cliente").value.trim();
+  const pd = persDados();
+  if (pd.ativo) total += PERS_PRECO;
+  const alvo = carrinho[persSel], pAlvo = alvo && POR_KEY.get(alvo.k);
+  const blocoPers = pd.ativo ? [
+    `\n✏️ *PERSONALIZAÇÃO* (+ ${brl(PERS_PRECO)})`,
+    pecas > 1 && pAlvo ? `Camisa: ${pAlvo.nome} (Tam ${alvo.tam})` : "",
+    `Nome: ${pd.nome || "(sem nome)"}`,
+    `Número: ${pd.num || "(sem número)"}`
+  ] : [];
   return [
     "Olá, *PH IMPORTS*! 👋",
     "Quero fazer o seguinte pedido:",
     nome ? `\n👤 *Cliente:* ${nome}` : "",
     "\n🛒 *ITENS DO PEDIDO*",
     linhas.join("\n\n"),
+    ...blocoPers,
     `\n📦 *Total de peças:* ${pecas}`,
     `💰 *TOTAL: ${brl(total)}* (no Pix)`,
     "\nPode confirmar a disponibilidade, o frete e a forma de pagamento? 🙏"
