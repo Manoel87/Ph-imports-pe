@@ -369,3 +369,68 @@ h2{font-size:1.5rem;font-weight:800;text-transform:uppercase}
   .lb-stage{padding-top:8px}
   .lb-bar{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:10px}
 }
+
+/* =====================================================================
+   AJUSTES FINAIS DE RESPONSIVIDADE (v12) - celular, tablet e computador
+   ===================================================================== */
+img,svg,video{max-width:100%}
+.card,.info,.thumb{min-width:0}
+.info h3{overflow-wrap:anywhere;word-break:normal}
+.price{white-space:nowrap}
+.sz,.btn,.chip,.mini-b,.theme-btn,.cart-btn{min-height:40px}
+.mini-b{min-height:0}
+
+/* tablet (641px a 860px): filtros e ordenação na mesma linha */
+@media(min-width:641px) and (max-width:860px){
+  .tools{flex-direction:row;align-items:center}
+  .tools select{width:170px;flex:none}
+  .tools .chips{flex:1;min-width:0}
+  .info h3{font-size:.88rem}
+  .perks{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+/* celular (até 640px) */
+@media(max-width:640px){
+  body{font-size:15px}
+  .nav{padding-top:0}
+  .tools{gap:8px}
+  .tools select{height:42px;font-size:15px}
+  .titulo{gap:4px 10px;margin-bottom:8px}
+  #resultado{font-size:.78rem}
+  .chip{padding:9px 13px;font-size:.72rem}
+  .card{border-radius:8px;overflow:hidden}
+  .lupa{display:none}                      /* o ícone de compartilhar fica livre; toque na foto para ampliar */
+  .thumb.com-foto::after{content:"";position:absolute;inset:0}
+  .share-btn{z-index:4}
+  .info .btn{min-height:44px}
+  .sz{min-height:38px;padding:8px 0}
+  .medidas{min-height:32px}
+  .parc{line-height:1.3}
+  .wpp-flutuante{width:52px!important;height:52px!important;right:10px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important}
+  .topo-btn{width:40px!important;height:40px!important;left:10px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important}
+  .footer{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .section h2,.faq h2,.policy h2{font-size:1.1rem}
+  .perks div{flex:0 0 82%}
+  .contact-btns .btn{flex:1 1 100%}
+  .md-box{max-height:94dvh}
+  .lb-stage img{max-height:100%}
+  .more{width:100%}
+}
+
+/* celulares estreitos (até 360px) */
+@media(max-width:360px){
+  .grid{gap:14px 6px}
+  .info{padding:8px 6px 10px}
+  .sz{font-size:.66rem}
+  .chip{padding:8px 11px}
+  .cart-btn{width:40px}
+}
+
+/* telas grandes (computador) */
+@media(min-width:1100px){
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(min-width:1700px){
+  .wrap{width:min(1560px,90%)}
+  .grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
